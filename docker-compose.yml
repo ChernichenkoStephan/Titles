@@ -1,0 +1,129 @@
+version: "3.8"
+services:
+# ---------- Download service part ----------
+
+  download-service:
+    build: ./Download-Service/
+    image: stephanchernichenko/download-service
+    container_name: "download-service"
+    ports:
+      - 9090:8080
+    networks:
+      - titels-network
+
+# ---------- Selection service part ----------
+
+  selection-database:
+    image: mongo
+    container_name: "selection-database"
+    ports:
+      - 27017:27017
+    networks:
+      - titels-network
+
+  selection-service:
+    build: ./Selection-service/
+    image: stephanchernichenko/selection-service
+    container_name: "selection-service"
+    ports:
+      - 9092:8080
+    networks:
+      - titels-network
+    links:
+      - selection-database
+
+# ---------- Profile service part ----------
+
+  profiles-database:
+    image: mongo
+    container_name: "profiles-database"
+    ports:
+      - 27018:27017
+    networks:
+      - titels-network
+
+  profile-service:
+    image: stephanchernichenko/profile-service
+    container_name: profile-service
+    ports:
+      - 9093:8080
+    links:
+      - profiles-database
+    networks:
+      - titels-network
+
+# ---------- Auth service part ----------
+
+  auth-database:
+    image: mongo
+    container_name: "auth-database"
+    ports:
+      - 27019:27017
+    networks:
+      - titels-network
+
+  auth-service:
+    image: stephanchernichenko/auth-service
+    container_name: "auth-service"
+    ports:
+      - 9094:8080
+    links:
+      - auth-database
+    networks:
+      - titels-network
+
+# ---------- Gateway service part ----------
+
+  gateway-service:
+    image: stephanchernichenko/gateway-service
+    container_name: "gateway-service"
+    ports:
+      - 9095:8080
+    networks:
+      - titels-network
+
+# ---------- DB service part ----------
+
+  cache-database:
+    image: mongo
+    container_name: "cache-database"
+    ports:
+      - 27020:27017
+    networks:
+      - titels-network
+
+  postgres:
+    image: postgres
+    container_name: postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=admin
+      - POSTGRES_DB=maindb
+    networks:
+      - titels-network
+
+  db-service:
+    image: stephanchernichenko/db-service
+    ports:
+      - 9091:8080
+    links:
+      - cache-database
+      - postgres
+    depends_on:
+      - postgres
+    networks:
+      - titels-network
+
+
+# ---------- Docker part ----------
+
+volumes:
+  postgres-data:
+
+networks:
+  titels-network:
+    driver: "bridge"

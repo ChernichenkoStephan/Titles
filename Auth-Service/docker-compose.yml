@@ -1,0 +1,14 @@
+version: "3.8"
+services:
+  auth-database:
+    image: mongo
+    container_name: "auth-database"
+    ports:
+      - 27017:27017
+  auth-service:
+    image: auth-service
+    container_name: "auth-service"
+    ports:
+      - 9094:8080
+    links:
+      - auth-database

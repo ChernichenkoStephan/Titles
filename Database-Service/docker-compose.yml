@@ -1,0 +1,39 @@
+version: "3.8"
+services:
+  cache-database:
+    image: mongo:4.0-xenial
+    container_name: "cache-database"
+    ports:
+      - 27017:27017
+    command: --smallfiles
+
+  postgres:
+    image: postgres
+    container_name: postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=admin
+      - POSTGRES_DB=maindb
+#    restart: unless-stopped
+
+  db-service:
+    image: db-service
+#    build: ./
+    ports:
+      - 9091:8080
+    links:
+      - cache-database
+      - postgres
+    depends_on:
+      - postgres
+#    restart: unless-stopped
+
+volumes:
+  postgres-data:
+
+
+

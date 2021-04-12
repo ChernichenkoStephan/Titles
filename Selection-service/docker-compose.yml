@@ -1,0 +1,14 @@
+version: "3.8"
+services:
+  selection-database:
+    image: mongo
+    container_name: "selection-database"
+    ports:
+      - 27017:27017
+
+  selection-service:
+    image: selection-service
+    ports:
+      - 9094:8080
+    links:
+      - selection-database

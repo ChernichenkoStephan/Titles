@@ -1,0 +1,23 @@
+version: "3.8"
+services:
+
+  tdb:
+    image: mongo:latest
+    container_name: "t-database"
+    ports:
+      - "27017:27017"
+
+  profiles-database:
+    image: mongo:latest
+    container_name: "profiles-database"
+    ports:
+      - "27018:27017"
+
+  profile-service:
+    image: profile-service
+    ports:
+      - 9093:8080
+    links:
+      - profiles-database
+    depends_on:
+      - profiles-database
